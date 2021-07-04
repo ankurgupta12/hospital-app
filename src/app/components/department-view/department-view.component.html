@@ -1,0 +1,102 @@
+<div *ngIf="loading" class="overlay">
+  <div class="overlay__inner">
+    <div class="overlay__content"><span class="spinner"></span></div>
+  </div>
+</div>
+
+<div class="common_wrapper">
+  <div class="content_container">
+    <h2>Department List</h2>
+
+    <!-- button container -->
+    <div class="btn_container">
+      <button (click)="sortBydepartmentName()">Sort by Department Name</button>
+      <button routerLink="/hospital">Back</button>
+    </div>
+
+    <!-- Table Content for the form -->
+    <div class="table_wrapper">
+      <table>
+        <tr>
+          <th *ngFor="let heading of columnConfig">
+            {{ heading.title }}
+          </th>
+          <th>Action</th>
+        </tr>
+        <!-- row data template -->
+        <ng-container>
+          <tr *ngFor="let item of departmentData; index as index">
+            <td *ngFor="let col of columnConfig">
+              <span *ngIf="!item.editMode">{{ item[col.field] }}</span>
+              <div class="form-control" *ngIf="item.editMode">
+                <input
+                  type="text"
+                  [formControl]="getControl(index, col.field)"
+                  [ngClass]="{
+                    'form-field-invalid':
+                      (getControl(index, col.field)?.errors?.required &&
+                        getControl(index, col.field)?.dirty) ||
+                      !getControl(index, col.field)?.value
+                  }"
+                />
+                <small *ngIf="!getControl(index, col.field).valid"
+                  >Required Field</small
+                >
+              </div>
+            </td>
+
+            <td>
+              <ng-container *ngIf="!item.editMode">
+                <button (click)="item.editMode = true">edit</button>
+                <button (click)="delete(index)">delete</button>
+              </ng-container>
+              <ng-container *ngIf="item.editMode">
+                <button (click)="saveEdit(index)">save</button>
+                <button (click)="reset(index)">cancel</button>
+              </ng-container>
+            </td>
+            <!-- <td> -->
+          </tr>
+        </ng-container>
+
+        <!-- add Template for newly added  -->
+        <tr>
+          <td *ngFor="let col of columnConfig">
+            <div class="form-control" *ngIf="addMode">
+              <input
+                type="text"
+                name="{{ col.field }}"
+                [formControl]="addControl(col.field)"
+                [ngClass]="{
+                  'form-field-invalid':
+                    (addControl(col.field)?.errors?.required &&
+                      addControl(col.field)?.dirty) ||
+                    !addControl(col.field)?.value
+                }"
+              />
+              <small
+                *ngIf="
+                  !addControl(col.field)?.valid && addControl(col.field)?.dirty
+                "
+                >Required</small
+              >
+              <small *ngIf="duplicateCheck"> Field already exists </small>
+            </div>
+          </td>
+          <td>
+            <!-- save and cancel button -->
+            <ng-container *ngIf="addMode">
+              <button (click)="addData()">Save</button>
+              <button (click)="addMode = false">cancel</button>
+            </ng-container>
+            <ng-container *ngIf="!addMode">
+              <button (click)="enableAdd()">Add</button>
+            </ng-container>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- no results found template -->
+  </div>
+</div>
